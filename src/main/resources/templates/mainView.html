@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+
+
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("sortable");
+        switching = true;
+        // Устанавливаем направление сортировки
+        dir = "asc";
+
+        while (switching) {
+            switching = false;
+            rows = table.getElementsByTagName("TR");
+            // Перебираем все строки таблицы (кроме первой, в который содержит заголовки таблиц)
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                //два элемента для сравнения, текущий  и следующий
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+
+                //Проверка нужно ли менять местами элементы
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            //Меняем если нужно элементы местами
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                switchcount ++;
+            } else {
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+
+
+
+
+    function saveReport() {
+        //получение данных таблицы
+        let data = $('#eventList').html();
+        //конверт в байты
+        const textToBLOB = new Blob([data], {type: "text/html"});
+
+        //создание элемента ссылки и привязка к нему данных
+        let newLink = document.createElement("a");
+        newLink.download = 'Analyze report ' + new Date();
+        newLink.href = window.URL.createObjectURL(textToBLOB);
+        newLink.style.display = "none";
+        document.body.appendChild(newLink);
+
+        newLink.click();
+    }
+
+</script>
+
+<head>
+    <meta charset="UTF-8">
+    <title th:utext="${myText}"></title>
+</head>
+<body>
+<h2 th:align="center" th:utext="${myText}"></h2>
+</body>
+
+<div>
+    <button><a th:href="@{/}">ANALYZE</a></button>
+</div>
+<br>
+<div>
+    <button type="button" onclick="saveReport()">PRINT</button>
+</div>
+<div id='eventList'>
+    <table id='sortable' th:align="center" style="width:90%" border="1" class="table table-striped table-responsive-md">
+        <thead>
+        <tr>
+            <th onclick="sortTable(0)">Время начала&#8595;&#8593;</th>
+            <th onclick="sortTable(1)">Участники&#8595;&#8593;</th>
+            <th onclick="sortTable(2)">Турнир&#8595;&#8593;</th>
+            <th onclick="sortTable(3)">Вид спорта&#8595;&#8593;</th>
+            <th onclick="sortTable(4)">Ссылка на событие&#8595;&#8593;</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="event:${eventList}">
+            <td th:text="${#dates.format(event.date, 'dd-MM HH:mm')}"></td>
+            <td th:text="${event.teamA  + ' VS ' + event.teamB}"></td>
+            <td th:text="${event.tournament}"></td>
+            <td th:text="${event.kind}"></td>
+            <td><a th:href="@{${event.url}}" th:text="${event.url}"></a></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</html>
