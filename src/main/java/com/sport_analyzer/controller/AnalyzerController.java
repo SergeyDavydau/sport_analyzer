@@ -13,9 +13,12 @@ public class AnalyzerController {
     AnalyzerService analyzerService;
 
     @GetMapping("/")
-    public String mainView(Model model){
+    public String mainView(Model model) {
+        //запуск анализа
+        analyzerService.loadEventInformation();
 
-        model.addAttribute("eventList", analyzerService.getEventInformation());
+        //Отправляем мап с событиями
+        model.addAttribute("eventMap", AnalyzerService.ALL_EVENTS);
         return "mainView";
 
     }

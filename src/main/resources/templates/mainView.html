@@ -98,13 +98,15 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="event:${eventList}">
+        <li th:each="entry: ${eventMap}" style="list-style-type:none;">
+        <tr th:each="event:${entry.value}">
             <td th:text="${#dates.format(event.date, 'dd-MM HH:mm')}"></td>
             <td th:text="${event.teamA  + ' VS ' + event.teamB}"></td>
             <td th:text="${event.tournament}"></td>
             <td th:text="${event.kind}"></td>
             <td><a th:href="@{${event.url}}" th:text="${event.url}"></a></td>
         </tr>
+        </li>
         </tbody>
     </table>
 </div>
